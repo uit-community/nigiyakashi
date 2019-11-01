@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+
+  function isAuthenticated() {
+    return request.auth != null;
+  }
+
+  function incomingData() {
+    return request.resource.data;
+  }
+
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() &&
+                      request.auth.token.email == 'admin@example.com'
+      ;
+      match /counters {
+        match /{presentationName}/counters {
+          match /{shardId} {
+          allow update: if isAuthenticated() &&
+                           incomingData() is int
+          ;
+          }
+        }
+      }
+    }
+  }
+}

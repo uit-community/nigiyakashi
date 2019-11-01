@@ -1,0 +1,38 @@
+{
+  "name": "nigiyakashi-client",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "format": "prettier './**/*.{js,ts,vue}' --write"
+  },
+  "dependencies": {
+    "@firebase/app-types": "^0.4.0",
+    "core-js": "^2.6.5",
+    "firebase": "^6.3.0",
+    "vue": "^2.6.10",
+    "vue-class-component": "^7.0.2",
+    "vue-property-decorator": "^8.1.0",
+    "vue-router": "^3.0.3",
+    "vue-router-layout": "^0.1.2",
+    "vuex": "^3.0.1"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.9.0",
+    "@vue/cli-plugin-typescript": "^3.9.0",
+    "@vue/cli-service": "^3.9.0",
+    "firebase-tools": "^7.1.1",
+    "node-sass": "^4.12.0",
+    "prettier": "^1.18.2",
+    "sass-loader": "^7.1.0",
+    "typescript": "^3.4.3",
+    "vue-auto-routing": "^0.4.0",
+    "vue-cli-plugin-auto-routing": "^0.3.1",
+    "vue-template-compiler": "^2.6.10"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true
+  }
+}
