@@ -54,7 +54,7 @@ clone 後、 attendee-spa/src/utils/firebase.config.ts にある Firebase の設
 
 ### 3. Electron クライアントの起動
 
-最後に SPA の受け口である Electron クライアントをプレゼンテーションを行う Mac 上で起動します。GitHub の Releases より、バイナリをダウンロードしてください。
+最後に SPA の受け口である Electron クライアントをプレゼンテーションを行う Mac 上で起動します。[こちら](https://github.com/uit-community/nigiyakashi/releases/tag/v0.0.1)よりバイナリをダウンロードしてください。
 
 ダウンロードが終わったあと、普段の Mac App と同じ様に起動します。
 
