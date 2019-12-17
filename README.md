@@ -87,7 +87,7 @@ SPA と Electron を同時に起動し、 SPA 側でボタンを押すと、Elec
 このシステムは Apache-2.0 ライセンスにて配布されています。
 ライセンス条項に違反しない範囲で自由に改変・再配布が可能です。
 
-## 開発者
+## Developers
 
-- Kurihara Yuji (開発)
-- Hanatani Takuma (企画)
+- Kurihara Yuji (Original Developer)
+- Hanatani Takuma (Original Planner / Maintainer)

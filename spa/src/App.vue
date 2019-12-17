@@ -2,52 +2,37 @@
   <div
     class="container home-wrapper"
     :class="{
-      'is-main': !(isLoading || !user),
+      'is-main': true,
       'is-active': reactionAnimationStacks.length
     }"
   >
-    <template v-if="isLoading || !user">
-      <div class="home-first">
-        <template v-if="isLoading">
-          <div></div>
-          <TheLoader />
-          <div></div>
-        </template>
-        <template v-else>
-          <h2>UIT meetup reaction System</h2>
-          <div class="signin-wrapper">
-            <button @click="signIn" class="signin">
-              参加する
-            </button>
-          </div>
-          <div></div>
-        </template>
-      </div>
-    </template>
+    <div class="home-first" v-if="!latestSyncedAt">
+      <div></div>
+      <TheLoader />
+      <div></div>
+    </div>
     <div class="content home" v-else>
       <div class="home">
         <template>
           <div class="reaction-info">
             <!-- <h2>Reactions: {{ reactionData }}</h2> -->
-            <h2>Current Talk: {{ presentationName }}</h2>
+            <h2>Current Talk: {{ talkData.title }} </h2>
           </div>
           <div class="home-main-content">
             <div
               class="balloon"
               :class="{ 'is-hidden': reactionAnimationStacks.length }"
-            >
-              「いいね」と思ったらタップ！
-            </div>
-            <button ontouchstart @click="reaction" class="button add_btn">
-              <div style="width: 100pxheight: 100pxposition: relative">
-                <img src="@/assets/thumbs-up.svg" key="1" width="100" alt="" />
+            >「いいね」と思ったらタップ！</div>
+            <button ontouchstart @click="handleClickUpvote" class="button add_btn">
+              <div style="width: 100px;height: 100px;position: relative">
+                <img src="@/assets/thumbs-up.svg" key="1" width="100" alt />
                 <img
                   src="@/assets/thumbs-up.svg"
                   class="reaction-animation"
                   v-for="anim in reactionAnimationStacks"
                   :key="anim"
                   width="100"
-                  alt=""
+                  alt
                 />
               </div>
             </button>
@@ -59,53 +44,147 @@
 </template>
 
 <script lang="ts">
-import TheLoader from '@/components/TheLoader.vue'
-import { Component, Vue } from 'vue-property-decorator'
-import store, { RootState } from '@/store/index'
-import { mapState } from 'vuex'
+import Vue from "vue";
+import TheLoader from "./components/TheLoader.vue";
+import { firestore, METADATA_REF, FieldValue } from "./externals/firebase";
 
-@Component({
+type MetaData = {
+  id: string;
+  currentTalk: string;
+};
+
+type TalkData = {
+  id: string;
+  title: string;
+};
+
+type LocalData = {
+  reactionAnimationStacks: any[];
+  latestSyncedAt: number;
+  metaData: MetaData;
+  talkData: TalkData;
+};
+
+export default Vue.extend({
+  name: "app",
+  data(): LocalData {
+    return {
+      reactionAnimationStacks: [],
+      latestSyncedAt: 0,
+      metaData: {
+        id: "",
+        currentTalk: ""
+      },
+      talkData: {
+        id: "",
+        title: ""
+      }
+    };
+  },
   components: {
     TheLoader
   },
-  computed: mapState<RootState>({
-    user: state => state.auth.user,
-    isLoading: state => state.auth.isLoading,
-    reactionData: state => state.reaction.reactionData,
-    presentationName: state => state.reaction.presentationName,
-    threshold: state => state.reaction.threshold
-  })
-})
-export default class Home extends Vue {
-  public reactionAnimationStacks: string[] = []
+  mounted() {
+    METADATA_REF.onSnapshot(snapshot => {
+      this.onUpdateMetaData(snapshot);
+    });
+  },
+  methods: {
+    async handleClickUpvote() {
+      const randomId = `${Math.random()}`.split(".")[1];
+      this.reactionAnimationStacks.push(randomId);
+      setTimeout(() => {
+        this.reactionAnimationStacks = this.reactionAnimationStacks.filter(
+          id => {
+            return id !== randomId;
+          }
+        );
+      }, 2000);
+      const SHARD_ID = Math.floor(Math.random() * 10).toString()
+      try {
+        await firestore
+          .collection('votes')
+          .doc(this.talkData.id)
+          .collection('counters')
+          .doc(SHARD_ID)
+          .update('count', FieldValue.increment(1))
+      } catch(e) {
 
-  public mounted() {
-    store.dispatch('auth/observeUser')
+      }
+    },
+    async onUpdateMetaData(metaSnapshot: firebase.firestore.DocumentSnapshot) {
+      const metaData = {
+        id: metaSnapshot.id,
+        ...metaSnapshot.data()
+      } as MetaData;
+      this.metaData = metaData;
+      const talkSnapshot = await firestore
+        .collection("shared")
+        .doc("public")
+        .collection("talks")
+        .doc(metaData.currentTalk)
+        .get();
+      this.talkData = {
+        id: talkSnapshot.id,
+        ...talkSnapshot.data()
+      } as TalkData;
+      this.latestSyncedAt = new Date().getTime();
+    }
   }
-
-  public async signIn() {
-    await store.dispatch('auth/signIn')
-    this.$router.push('/')
-  }
-
-  public async logout() {
-    await store.dispatch('auth/signOut')
-  }
-
-  public async reaction() {
-    const randomId = `${Math.random()}`.split('.')[1]
-    this.reactionAnimationStacks.push(randomId)
-    setTimeout(() => {
-      this.reactionAnimationStacks = this.reactionAnimationStacks.filter(id => {
-        return id !== randomId
-      })
-    }, 2000)
-    await store.dispatch('reaction/reactionPresentation')
-  }
-}
+});
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+html {
+  touch-action: manipulation;
+  margin: 0;
+  padding: 0;
+}
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#app {
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  min-height: calc(var(--vh, 1vh) * 100);
+}
+
+.container {
+  width: 100vw;
+  min-height: calc(var(--vh, 1vh) * 100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button {
+  padding: 1rem 2rem;
+  background-color: #fcfcfd;
+  box-shadow: 0 0 1px 0 rgba(10, 31, 68, 0.08),
+    0 1px 1px 0 rgba(10, 31, 68, 0.08);
+  border: none;
+  border-radius: 4px;
+}
+
+header {
+  position: fixed;
+  width: 100%;
+  height: 60px;
+  background: #fcfcfd;
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3),
+    0 2px 6px 2px rgba(60, 64, 67, 0.15);
+  font-weight: bold;
+  text-align: center;
+  border-radius: 0 0 8px 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .home-wrapper {
   width: 100%;
   height: 100%;
@@ -118,7 +197,7 @@ export default class Home extends Vue {
     &::before {
       animation: fadeOutColor 0.6s ease-out;
       z-index: 10;
-      content: '';
+      content: "";
       display: block;
       width: 100%;
       height: 100%;
@@ -130,7 +209,7 @@ export default class Home extends Vue {
   }
   &::after {
     z-index: 20;
-    content: '';
+    content: "";
     display: block;
     width: 100%;
     height: 100%;
@@ -346,7 +425,7 @@ h2 {
 }
 
 .balloon:before {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -3px;
   left: -3px;
@@ -363,7 +442,7 @@ h2 {
 }
 
 .balloon:after {
-  content: '';
+  content: "";
   position: absolute;
   left: calc(50% - 20px);
   bottom: -8px;

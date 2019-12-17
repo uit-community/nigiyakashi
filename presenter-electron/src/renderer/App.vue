@@ -36,19 +36,22 @@ export default {
       firebase.initializeApp({
         ...config
       })
-      await firebase.auth().signInWithEmailAndPassword('admin@example.com', config.password)
       const batch = firebase.firestore().batch()
-      const presentationsRef = firebase.firestore().collection('/presentations')
-      const countersRef = firebase.firestore().collection('/counters')
+      const talksRef = firebase
+        .firestore()
+        .collection('shared')
+        .doc('public')
+        .collection('talks')
+      const votesRef = firebase.firestore().collection('votes')
 
-      const data = await presentationsRef.get()
+      const talks = await talksRef.get()
       await Promise.all(
-        data.forEach(async doc => {
-          for (let i = 0; i < ~~3; i++) {
-            const test = countersRef
-              .doc(doc.id)
+        talks.docs.map(async talkSnapshot => {
+          for (let i = 0; i < 7; i++) {
+            const test = votesRef
+              .doc(talkSnapshot.id)
               .collection('counters')
-              .doc(i.toString())
+              .doc(`${i}`)
             batch.set(test, { count: 0 })
           }
         })
@@ -71,6 +74,10 @@ export default {
 }
 
 body {
+  border: solid 1px #fff;
+  border-radius: 4px;
+  -webkit-app-region: drag;
+  background: rgba(0, 0, 0, 0);
   font-family: 'Source Sans Pro', sans-serif;
 }
 </style>

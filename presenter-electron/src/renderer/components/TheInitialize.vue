@@ -2,38 +2,42 @@
   <form @submit.prevent="execInitialize">
     <p>
       <label>
-        <span>APIKEY</span><br>
-        <input type="text" v-model="formData.apiKey" @input="save('apiKey', $event.target.value)">
+        <span>APIKEY</span><br />
+        <input
+          type="text"
+          v-model="formData.apiKey"
+          @input="save('apiKey', $event.target.value)"
+        />
       </label>
     </p>
     <p>
       <label>
-        <span>Auth Domain</span><br>
-        <input type="text" v-model="formData.authDomain" @input="save('authDomain', $event.target.value)">
+        <span>Auth Domain</span><br />
+        <input
+          type="text"
+          v-model="formData.authDomain"
+          @input="save('authDomain', $event.target.value)"
+        />
       </label>
     </p>
     <p>
       <label>
-        <span>Database URL</span><br>
-        <input type="text" v-model="formData.databaseURL" @input="save('databaseURL', $event.target.value)">
+        <span>Database URL</span><br />
+        <input
+          type="text"
+          v-model="formData.databaseURL"
+          @input="save('databaseURL', $event.target.value)"
+        />
       </label>
     </p>
     <p>
       <label>
-        <span>Project ID</span><br>
-        <input type="text" v-model="formData.projectId" @input="save('projectId', $event.target.value)">
-      </label>
-    </p>
-    <p>
-      <label>
-        <span>App ID</span><br>
-        <input type="text" v-model="formData.appId" @input="save('appId', $event.target.value)">
-      </label>
-    </p>
-    <p>
-      <label>
-        <span>管理者パスワード</span><br>
-        <input type="text" v-model="formData.password">
+        <span>Project ID</span><br />
+        <input
+          type="text"
+          v-model="formData.projectId"
+          @input="save('projectId', $event.target.value)"
+        />
       </label>
     </p>
     <p>
@@ -50,9 +54,7 @@ export default {
         apiKey: localStorage.getItem('apiKey') || null,
         authDomain: localStorage.getItem('authDomain') || null,
         databaseURL: localStorage.getItem('databaseURL') || null,
-        projectId: localStorage.getItem('projectId') || null,
-        appId: localStorage.getItem('appId') || null,
-        password: localStorage.getItem('password') || null
+        projectId: localStorage.getItem('projectId') || null
       }
     }
   },
@@ -63,7 +65,7 @@ export default {
       })
     },
     save(k, v) {
-      localStorage.setItem(k,v)
+      localStorage.setItem(k, v)
     }
   }
 }
@@ -72,6 +74,7 @@ export default {
 <style scoped>
 form {
   padding: 12px;
+  background: #fff;
 }
 
 input {

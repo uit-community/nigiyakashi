@@ -10,7 +10,7 @@
             class="canvas"
           />
         </div>
-        <webview class="webview" :src="url"></webview>
+        <!-- <webview class="webview" :src="url"></webview> -->
       </div>
     </main>
   </div>
@@ -18,26 +18,26 @@
 
 <style scoped>
 #wrapper {
-  height: 100vh;
+  height: calc(100vh - 2px);
   width: 100vw;
 }
 
 .webview {
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - 2px);
   overflow: scroll;
 }
 
 .overlay {
   position: absolute;
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - 2px);
   pointer-events: none;
 }
 
 .overlay > canvas {
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - 2px);
 }
 </style>
 
@@ -74,14 +74,14 @@ export default {
   created() {
     this.firebase
       .firestore()
-      .collection('admin')
-      .doc('setting')
+      .collection('shared')
+      .doc('metadata')
       .onSnapshot(snapshot => {
-        if (this.presentation !== snapshot.get('presentation')) {
-          this.presentation = snapshot.get('presentation')
+        const metaData = { id: snapshot.id, ...snapshot.data() }
+        if (metaData.currentTalk !== this.presentation) {
+          this.presentation = metaData.currentTalk
           this.selectPresentation(this.presentation)
         }
-        this.threshold = snapshot.get('threshold')
       })
   },
   computed: {
@@ -140,7 +140,7 @@ export default {
     selectPresentation(name) {
       this.firebase
         .firestore()
-        .collection('counters')
+        .collection('votes')
         .doc(name)
         .collection('counters')
         .onSnapshot(snapshot => {
@@ -149,14 +149,6 @@ export default {
               this.bound()
             }
           })
-        })
-
-      this.firebase
-        .firestore()
-        .collection('presentations')
-        .doc(this.presentation)
-        .onSnapshot(snapshot => {
-          this.url = snapshot.get('url')
         })
     },
     bound() {
