@@ -47,7 +47,7 @@ export default {
       const talks = await talksRef.get()
       await Promise.all(
         talks.docs.map(async talkSnapshot => {
-          for (let i = 0; i < 7; i++) {
+          for (let i = 0; i < 10; i++) {
             const test = votesRef
               .doc(talkSnapshot.id)
               .collection('counters')

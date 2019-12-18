@@ -3,13 +3,11 @@
     <main>
       <div>
         <div class="overlay">
-          <canvas
-            id="canvas"
-            :width="screenWidth"
-            :height="screenHeight"
-            class="canvas"
-          />
+          <canvas id="canvas" :width="screenWidth" :height="screenHeight" class="canvas" />
         </div>
+        <div id="count" v-if="isVisibleCount" :class="{
+          'active': isActiveCountUp
+        }">{{totalCount}}</div>
         <!-- <webview class="webview" :src="url"></webview> -->
       </div>
     </main>
@@ -17,26 +15,59 @@
 </template>
 
 <style scoped>
+#count.active {
+  animation: growup 0.2s ease-out forwards;
+}
+
+@keyframes growup {
+  0% {
+    transform: scale(1) translateY(0);
+  }
+  40% {
+    transform: scale(1.4) translateY(-5px);
+  }
+  0% {
+    transform: scale(1) translateY(0);
+  }
+}
+
 #wrapper {
   height: calc(100vh - 2px);
-  width: 100vw;
+  width: calc(100vw - 2px);
+  position: relative;
+}
+
+#count {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  font-size: 40px;
+  color: #fff;
+  font-family: Futura;
+  filter: drop-shadow(0 0 10px rgba(81, 154, 186, 1));
 }
 
 .webview {
-  width: 100vw;
+  width: calc(100vw - 2px);
   height: calc(100vh - 2px);
   overflow: scroll;
 }
 
 .overlay {
   position: absolute;
-  width: 100vw;
+  width: calc(100vw - 2px);
   height: calc(100vh - 2px);
   pointer-events: none;
 }
 
 .overlay > canvas {
-  width: 100vw;
+  width: calc(100vw - 2px);
   height: calc(100vh - 2px);
 }
 </style>
@@ -68,7 +99,10 @@ export default {
       winWidth: 0,
       winHeight: 0,
       removeArray: [],
-      url: ''
+      url: '',
+      totalCount: 0,
+      isVisibleCount: false,
+      isActiveCountUp: false
     }
   },
   created() {
@@ -78,6 +112,7 @@ export default {
       .doc('metadata')
       .onSnapshot(snapshot => {
         const metaData = { id: snapshot.id, ...snapshot.data() }
+        this.isVisibleCount = metaData.isVisibleCount
         if (metaData.currentTalk !== this.presentation) {
           this.presentation = metaData.currentTalk
           this.selectPresentation(this.presentation)
@@ -93,6 +128,9 @@ export default {
     }
   },
   mounted() {
+    setInterval(() => {
+      this.isActiveCountUp = false
+    }, 400)
     const Engine = Matter.Engine,
       Render = Matter.Render
 
@@ -144,9 +182,23 @@ export default {
         .doc(name)
         .collection('counters')
         .onSnapshot(snapshot => {
+            let total_count = 0;
+            snapshot.forEach(doc => {
+                total_count += doc.data().count;
+            });
+
+          this.totalCount = total_count;
           snapshot.docChanges().forEach(change => {
             if (change.type === 'modified' && change.doc.data().count) {
-              this.bound()
+              if (parseInt(change.doc.id) < 7) {
+                this.bound()
+              }
+              requestAnimationFrame(() => {
+                this.isActiveCountUp = false
+                requestAnimationFrame(() => {
+                  this.isActiveCountUp = true
+                })
+              })
             }
           })
         })

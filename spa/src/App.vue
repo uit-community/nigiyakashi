@@ -50,6 +50,7 @@ import { firestore, METADATA_REF, FieldValue } from "./externals/firebase";
 
 type MetaData = {
   id: string;
+  isVisibleCount: boolean;
   currentTalk: string;
 };
 
@@ -73,6 +74,7 @@ export default Vue.extend({
       latestSyncedAt: 0,
       metaData: {
         id: "",
+        isVisibleCount: false,
         currentTalk: ""
       },
       talkData: {
@@ -100,7 +102,7 @@ export default Vue.extend({
           }
         );
       }, 2000);
-      const SHARD_ID = Math.floor(Math.random() * 10).toString()
+      const SHARD_ID = Math.floor(Math.random() * 6).toString()
       try {
         await firestore
           .collection('votes')
