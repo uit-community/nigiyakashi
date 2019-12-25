@@ -7,7 +7,12 @@
         </div>
         <div id="count" v-if="isVisibleCount" :class="{
           'active': isActiveCountUp
-        }">{{totalCount}}</div>
+        }">
+        <div style="display: flex; align-items-center" id="counter">
+          <img src="../assets/thumbs-up.svg" width='30' style="margin-right: 10px;" alt="">
+          <span>{{totalCount}}</span>
+        </div>
+        </div>
         <!-- <webview class="webview" :src="url"></webview> -->
       </div>
     </main>
@@ -15,7 +20,7 @@
 </template>
 
 <style scoped>
-#count.active {
+#count.active #counter {
   animation: growup 0.2s ease-out forwards;
 }
 
@@ -24,7 +29,7 @@
     transform: scale(1) translateY(0);
   }
   40% {
-    transform: scale(1.4) translateY(-5px);
+    transform: scale(1.4) translateY(0);
   }
   0% {
     transform: scale(1) translateY(0);
@@ -44,10 +49,11 @@
   width: 100%;
   height: 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 20px;
+  align-items: flex-end;
+  justify-content: flex-end;
   pointer-events: none;
-  font-size: 40px;
+  font-size: 30px;
   color: #fff;
   font-family: Futura;
   filter: drop-shadow(0 0 10px rgba(81, 154, 186, 1));
@@ -79,6 +85,9 @@ import { constants } from 'fs'
 
 import thumbsUpIcon from '../assets/thumbs-up.svg'
 
+const SHARDS = 30
+const THRESHOLD = SHARDS * 0.7
+
 export default {
   name: 'TheMainView',
   props: {
@@ -101,6 +110,7 @@ export default {
       removeArray: [],
       url: '',
       totalCount: 0,
+      metadataThreshold: THRESHOLD,
       isVisibleCount: false,
       isActiveCountUp: false
     }
@@ -113,6 +123,7 @@ export default {
       .onSnapshot(snapshot => {
         const metaData = { id: snapshot.id, ...snapshot.data() }
         this.isVisibleCount = metaData.isVisibleCount
+        this.metadataThreshold = metaData.threshold
         if (metaData.currentTalk !== this.presentation) {
           this.presentation = metaData.currentTalk
           this.selectPresentation(this.presentation)
@@ -190,9 +201,10 @@ export default {
           this.totalCount = total_count;
           snapshot.docChanges().forEach(change => {
             if (change.type === 'modified' && change.doc.data().count) {
-              if (parseInt(change.doc.id) < 7) {
+              if (parseInt(change.doc.id) < this.metadataThreshold) {
                 this.bound()
               }
+
               requestAnimationFrame(() => {
                 this.isActiveCountUp = false
                 requestAnimationFrame(() => {
@@ -209,16 +221,16 @@ export default {
       const thumbsObj = this.bodies.rectangle(
         boundPositionX,
         this.winHeight,
-        100,
-        100,
+        80,
+        80,
         {
           restitution: this.threshold,
           mass: 1.4,
           render: {
             sprite: {
               texture: thumbsUpIcon,
-              xScale: 5,
-              yScale: 5
+              xScale: 4,
+              yScale: 4
             }
           }
         }

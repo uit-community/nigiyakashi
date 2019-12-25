@@ -48,6 +48,8 @@ import Vue from "vue";
 import TheLoader from "./components/TheLoader.vue";
 import { firestore, METADATA_REF, FieldValue } from "./externals/firebase";
 
+const SHARDS = 30
+
 type MetaData = {
   id: string;
   isVisibleCount: boolean;
@@ -102,7 +104,7 @@ export default Vue.extend({
           }
         );
       }, 2000);
-      const SHARD_ID = Math.floor(Math.random() * 6).toString()
+      const SHARD_ID = Math.floor(Math.random() * SHARDS).toString()
       try {
         await firestore
           .collection('votes')
