@@ -12,6 +12,8 @@ import firebase, { firestore } from 'firebase/app'
 import 'firebase/firestore'
 import 'firebase/auth'
 
+const SHARDS = 30
+
 export default {
   name: 'nigiyakashi-viewer',
   components: {
@@ -25,6 +27,12 @@ export default {
     }
   },
   mounted() {
+    window.addEventListener('mousemove', event => {
+      if (event.target === document.documentElement) // <html>-element
+        setIgnoreMouseEvents(true, {forward: true})   // {forward: true} keeps generating MouseEvents
+      else
+        setIgnoreMouseEvents(false)
+    })
     window.document.onkeydown = event => {
       if (event.keyCode === 219 && event.altKey) {
         window.history.back()
@@ -33,30 +41,31 @@ export default {
   },
   methods: {
     async launchPresenterView(config) {
+      document.body.style.pointerEvents = 'none'
       firebase.initializeApp({
         ...config
       })
-      const batch = firebase.firestore().batch()
-      const talksRef = firebase
-        .firestore()
-        .collection('shared')
-        .doc('public')
-        .collection('talks')
-      const votesRef = firebase.firestore().collection('votes')
+      // const batch = firebase.firestore().batch()
+      // const talksRef = firebase
+      //   .firestore()
+      //   .collection('shared')
+      //   .doc('public')
+      //   .collection('talks')
+      // const votesRef = firebase.firestore().collection('votes')
 
-      const talks = await talksRef.get()
-      await Promise.all(
-        talks.docs.map(async talkSnapshot => {
-          for (let i = 0; i < 10; i++) {
-            const test = votesRef
-              .doc(talkSnapshot.id)
-              .collection('counters')
-              .doc(`${i}`)
-            batch.set(test, { count: 0 })
-          }
-        })
-      )
-      batch.commit()
+      // const talks = await talksRef.get()
+      // await Promise.all(
+      //   talks.docs.map(async talkSnapshot => {
+      //     for (let i = 0; i < SHARDS; i++) {
+      //       const test = votesRef
+      //         .doc(talkSnapshot.id)
+      //         .collection('counters')
+      //         .doc(`${i}`)
+      //       batch.set(test, { count: 0 })
+      //     }
+      //   })
+      // )
+      // batch.commit()
       this.firebase = firebase
       this.isPlaying = true
     }

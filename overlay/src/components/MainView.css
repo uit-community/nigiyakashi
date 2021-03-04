@@ -1,0 +1,56 @@
+#count.active #counter {
+  animation: growup 0.2s ease-out forwards;
+}
+
+@keyframes growup {
+  0% {
+    transform: scale(1) translateY(0);
+  }
+  40% {
+    transform: scale(1.4) translateY(0);
+  }
+  0% {
+    transform: scale(1) translateY(0);
+  }
+}
+
+#wrapper {
+  height: calc(100vh - 2px);
+  width: calc(100vw - 2px);
+  position: relative;
+}
+
+#count {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  padding: 20px;
+  align-items: flex-end;
+  justify-content: flex-end;
+  pointer-events: none;
+  font-size: 30px;
+  color: #fff;
+  font-family: Futura;
+  filter: drop-shadow(0 0 10px rgba(81, 154, 186, 1));
+}
+
+.webview {
+  width: calc(100vw - 2px);
+  height: calc(100vh - 2px);
+  overflow: scroll;
+}
+
+.overlay {
+  position: absolute;
+  width: calc(100vw - 2px);
+  height: calc(100vh - 2px);
+  pointer-events: none;
+}
+
+.overlay > canvas {
+  width: calc(100vw - 2px);
+  height: calc(100vh - 2px);
+}
